@@ -65,19 +65,23 @@ app.options("/", (req, res) => {
 	//Getting the token by slicing "Bearer "
 	const token = authHeader && authHeader.slice(7);
 	let returnedOptions = [];
+	//return the default first 2 options
 	let returnedIndexes = [0, 1];
 
+	//if token is valid then return third option as well
 	if (token) {
 		returnedIndexes.push(2);
 		jwt.verify(token, ACCESS_TOKEN_SECRET, (err, data) => {
 			if (err) {
 				return;
 			}
+			//if user is registered return options 0 to 5
 			returnedIndexes.push(3, 4, 5);
+			// if user is an admin then return all 6 options.
 			if (data.isAdmin) returnedIndexes.push(6);
 		});
 	}
-
+	//return options based on autority
 	returnedOptions = options.filter((option, i) => returnedIndexes.includes(i));
 
 	res.set("Allow", "OPTIONS, GET, POST").json(returnedOptions);
